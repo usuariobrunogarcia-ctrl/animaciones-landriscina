@@ -1,0 +1,570 @@
+<title>Permiso, permiso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chango&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --ground: #1c1713;
+    --panel: #2a221c;
+    --paper: #efe3c8;
+    --muted: #a8977d;
+    --dim: #6f604f;
+    --gold: #f2b23a;
+    --red: #b8402f;
+    --display: "Chango", "Arial Black", Impact, sans-serif;
+    --body: "Literata", Georgia, "Times New Roman", serif;
+  }
+  html, body { background: var(--ground); color: var(--paper); }
+  body { font-family: var(--body); padding-inline: 16px; padding-block: 20px 32px; }
+  .wrap { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+  h1 { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 5vw, 40px); letter-spacing: .01em; margin: 0; text-wrap: balance; color: var(--gold); }
+  header p { margin: 0; color: var(--muted); font-size: 15px; }
+  .stage { position: relative; width: 100%; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 6px; overflow: hidden; background: #0f0c0a; box-shadow: 0 18px 50px rgba(0,0,0,.45); }
+  .stage svg { display: block; width: 100%; height: 100%; }
+  [hidden] { display: none !important; }
+  .poster { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: linear-gradient(180deg, rgba(28,23,19,.15), rgba(28,23,19,.72)); border: 0; color: var(--paper); cursor: pointer; font: inherit; padding: 16px; }
+  .poster .big { width: clamp(64px, 12vw, 104px); height: clamp(64px, 12vw, 104px); border-radius: 50%; background: var(--gold); display: grid; place-items: center; box-shadow: 0 8px 30px rgba(0,0,0,.4); transition: transform .15s; }
+  .poster:hover .big, .poster:focus-visible .big { transform: scale(1.07); }
+  .poster:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; }
+  .poster .ttl { font-family: var(--display); font-size: clamp(22px, 5vw, 48px); text-shadow: 0 3px 12px rgba(0,0,0,.6); }
+  .poster .sub { font-size: clamp(13px, 2vw, 17px); color: var(--paper); opacity: .85; text-shadow: 0 2px 8px rgba(0,0,0,.7); }
+  .captions { min-height: 3.4em; font-size: clamp(18px, 2.6vw, 26px); line-height: 1.35; text-align: center; text-wrap: balance; padding-inline: 8px; }
+  .captions span { color: var(--dim); transition: color .08s; }
+  .captions span.said { color: var(--paper); }
+  .captions span.now { color: var(--gold); }
+  .laugh { display: inline-block; font-family: var(--display); font-size: 14px; letter-spacing: .08em; text-transform: uppercase; color: var(--ground); background: var(--gold); border-radius: 999px; padding: 3px 12px; margin-inline-start: 10px; vertical-align: middle; }
+  .controls { display: flex; align-items: center; gap: 12px; background: var(--panel); border-radius: 6px; padding: 10px 14px; }
+  .controls button { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--gold); color: var(--ground); cursor: pointer; display: grid; place-items: center; }
+  .controls button:focus-visible { outline: 3px solid var(--paper); outline-offset: 2px; }
+  .controls input[type=range] { flex: 1; min-width: 0; accent-color: var(--gold); }
+  .time { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 14px; flex: none; }
+  .note { color: var(--muted); font-size: 13px; margin: 0; }
+  .err { color: #f0a08f; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Permiso, permiso</h1>
+    <p>Un cuento de cacería en el monte · 2:21</p>
+  </header>
+
+  <div class="stage" id="stage">
+    <svg id="svg" viewBox="0 0 1600 900" role="img" aria-label="Animación del cuento: un paisano rodeado de animales en el monte">
+      <defs>
+        <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d58f"/><stop offset="1" stop-color="#eca25c"/></linearGradient>
+        <linearGradient id="gNight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#141a28"/><stop offset="1" stop-color="#2d2a3b"/></linearGradient>
+        <radialGradient id="gGlow"><stop offset="0" stop-color="#f7a03c" stop-opacity=".55"/><stop offset="1" stop-color="#f7a03c" stop-opacity="0"/></radialGradient>
+        <radialGradient id="gVig"><stop offset=".35" stop-color="#1c1713" stop-opacity="0"/><stop offset="1" stop-color="#1c1713" stop-opacity=".85"/></radialGradient>
+        <radialGradient id="gPaper"><stop offset="0" stop-color="#f4ead3"/><stop offset="1" stop-color="#e3d2ad"/></radialGradient>
+      </defs>
+      <g id="scIntro"></g>
+      <g id="scRueda"></g>
+      <g id="scTools"></g>
+      <g id="scMonte"></g>
+      <g id="scFin"></g>
+    </svg>
+    <button class="poster" id="poster" type="button" aria-label="Reproducir el corto">
+      <span class="big"><svg width="42" height="42" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z" fill="#1c1713"/></svg></span>
+      <span class="ttl">Permiso, permiso</span>
+      <span class="sub">Tocá para ver el corto con sonido</span>
+    </button>
+  </div>
+
+  <div class="captions" id="captions" aria-live="off"></div>
+
+  <div class="controls">
+    <button id="play" type="button" aria-label="Reproducir"></button>
+    <input id="seek" type="range" min="0" max="141.5" step="0.01" value="0" aria-label="Posición en el audio">
+    <span class="time" id="time">0:00 / 2:21</span>
+  </div>
+  <p class="note" id="note">Cada palabra está sincronizada con la transcripción. Podés adelantar o volver con la barra.</p>
+
+  <audio id="audio" preload="auto">
+    <source src="audio.mp3" type="audio/mpeg">
+    <source src="WhatsApp%20Audio%202026-09-26%20at%205.44.40%20PM.mpeg" type="audio/mpeg">
+  </audio>
+</div>
+
+<script>
+const WORDS = __WORDS__;
+
+/* ---------- utilidades de tiempo ---------- */
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ramp = (t, a, b) => clamp((t - a) / (b - a));
+const io = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+const E = (t, a, b) => io(ramp(t, a, b));
+const lerp = (a, b, k) => a + (b - a) * k;
+const backOut = x => { const c = 1.70158; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const pop = (t, a, d = .45) => t < a ? 0 : backOut(ramp(t, a, a + d));
+const bump = (t, a, d = .5) => (t < a || t > a + d) ? 0 : Math.sin(Math.PI * (t - a) / d);
+const win = (t, a, b, f = .25) => Math.min(ramp(t, a - f, a + f), 1 - ramp(t, b - f, b + f));
+let seed = 7;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const INK = '#2a1d14', SKIN = '#d39a63', PONCHO = '#a8362a', BOMB = '#e9dfc9', GOLD = '#e8c25a', STEEL = '#4a4a52', WOOD = '#6b4630';
+
+/* ---------- personajes ---------- */
+function gaucho(p) {
+  return `<g id="${p}"><ellipse cx="0" cy="0" rx="72" ry="12" fill="rgba(0,0,0,.22)"/><g id="${p}B">
+    <g id="${p}LL"><path d="M-40,-125 L-46,-18 L-12,-18 L-6,-125Z" fill="${BOMB}"/><rect x="-52" y="-24" width="42" height="24" rx="7" fill="${INK}"/></g>
+    <g id="${p}LR"><path d="M40,-125 L46,-18 L12,-18 L6,-125Z" fill="${BOMB}"/><rect x="10" y="-24" width="42" height="24" rx="7" fill="${INK}"/></g>
+    <rect x="-50" y="-136" width="100" height="16" rx="3" fill="${INK}"/>
+    <g fill="${GOLD}"><circle cx="-30" cy="-128" r="4"/><circle cx="-10" cy="-128" r="4"/><circle cx="10" cy="-128" r="4"/><circle cx="30" cy="-128" r="4"/></g>
+    <g id="${p}AL"><path d="M-40,-205 L-80,-128" stroke="${BOMB}" stroke-width="22" stroke-linecap="round"/><circle cx="-82" cy="-124" r="12" fill="${SKIN}"/></g>
+    <g id="${p}AR"><path d="M40,-205 L80,-128" stroke="${BOMB}" stroke-width="22" stroke-linecap="round"/><circle cx="82" cy="-124" r="12" fill="${SKIN}"/></g>
+    <path d="M-74,-118 L0,-236 L74,-118 Q0,-100 -74,-118Z" fill="${PONCHO}"/>
+    <path d="M-66,-128 Q0,-112 66,-128" stroke="${INK}" stroke-width="5" fill="none"/>
+    <path d="M-60,-138 Q0,-124 60,-138" stroke="${GOLD}" stroke-width="4" fill="none"/>
+    <path d="M-18,-232 L18,-232 L0,-206Z" fill="${GOLD}"/>
+    <g id="${p}H">
+      <circle cx="-34" cy="-262" r="8" fill="${SKIN}"/><circle cx="34" cy="-262" r="8" fill="${SKIN}"/>
+      <circle cx="0" cy="-262" r="35" fill="${SKIN}"/>
+      <path d="M-20,-280 L-6,-278 M6,-278 L20,-280" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+      <g id="${p}E" fill="${INK}"><circle cx="-12" cy="-267" r="4.5"/><circle cx="12" cy="-267" r="4.5"/></g>
+      <ellipse cx="0" cy="-256" rx="6" ry="8" fill="#bf8350"/>
+      <ellipse id="${p}M" cx="0" cy="-240" rx="8" ry="2" fill="#5a2e24"/>
+      <path d="M-24,-247 Q-11,-257 0,-250 Q11,-257 24,-247 Q11,-241 0,-245 Q-11,-241 -24,-247Z" fill="#4a3526"/>
+      <g id="${p}Hat"><ellipse cx="0" cy="-289" rx="64" ry="11" fill="${INK}"/><path d="M-33,-289 L-29,-323 Q0,-332 29,-323 L33,-289Z" fill="${INK}"/><rect x="-32" y="-298" width="64" height="7" fill="#7a4a2c"/></g>
+    </g></g></g>`;
+}
+function cat(id, coat, belly, spotted, lady) {
+  let spots = '';
+  if (spotted) { seed = 11; for (let i = 0; i < 16; i++) { const x = -90 + rnd() * 180, y = -125 + rnd() * 55; spots += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(6 + rnd() * 5).toFixed(1)}" fill="none" stroke="${INK}" stroke-width="4.5" stroke-dasharray="7 4"/>`; } }
+  const deco = lady ? `<g transform="translate(108,-170)"><circle r="12" fill="#e86a8a"/><circle cx="-13" cy="-4" r="9" fill="#f0a3b4"/><circle cx="12" cy="-6" r="9" fill="#f0a3b4"/><circle r="5" fill="${GOLD}"/></g><path d="M124,-146 l-6,-8 M132,-147 l-2,-9 M139,-145 l3,-8" stroke="${INK}" stroke-width="3"/>` : `<path d="M118,-150 L140,-143" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`;
+  return `<g id="${id}"><ellipse cx="10" cy="0" rx="125" ry="12" fill="rgba(0,0,0,.22)"/><g class="f"><g class="b">
+    <path d="M-100,-100 Q-178,-96 -172,-168 Q-168,-186 -152,-176 Q-160,-124 -96,-116Z" fill="${coat}"/>
+    <rect x="-98" y="-86" width="26" height="86" rx="11" fill="${coat}" style="filter:brightness(.82)"/>
+    <rect x="58" y="-86" width="26" height="86" rx="11" fill="${coat}" style="filter:brightness(.82)"/>
+    <rect x="-66" y="-86" width="26" height="86" rx="11" fill="${coat}"/>
+    <rect x="86" y="-86" width="26" height="86" rx="11" fill="${coat}"/>
+    <ellipse cx="0" cy="-100" rx="114" ry="47" fill="${coat}"/>
+    <ellipse cx="6" cy="-74" rx="82" ry="17" fill="${belly}"/>
+    ${spots}
+    <path d="M94,-160 L100,-190 L120,-168Z M128,-168 L146,-190 L152,-160Z" fill="${coat}"/>
+    <circle cx="120" cy="-132" r="41" fill="${coat}"/>
+    <ellipse cx="148" cy="-116" rx="22" ry="15" fill="${belly}"/>
+    <path d="M160,-126 l12,0 l-6,8z" fill="#5a2e24"/>
+    <path d="M152,-104 q8,6 16,0" stroke="${INK}" stroke-width="3" fill="none"/>
+    <ellipse cx="132" cy="-140" rx="5" ry="6.5" fill="${INK}"/>
+    ${deco}
+  </g></g></g>`;
+}
+function chancho(id, wings) {
+  const w = wings ? `<path class="w" d="M-10,-95 Q-60,-170 -110,-150 Q-70,-120 -40,-96Z" fill="#f4ead3" stroke="${INK}" stroke-width="3"/>` : '';
+  return `<g id="${id}"><ellipse cx="10" cy="0" rx="95" ry="10" fill="rgba(0,0,0,.22)"/><g class="f"><g class="b">
+    <g fill="#3a2e27"><rect x="-58" y="-40" width="15" height="40" rx="5"/><rect x="36" y="-40" width="15" height="40" rx="5"/></g>
+    <g fill="#4b3d33"><rect x="-38" y="-40" width="15" height="40" rx="5"/><rect x="56" y="-40" width="15" height="40" rx="5"/></g>
+    <ellipse cx="0" cy="-64" rx="84" ry="42" fill="#4b3d33"/>
+    <path d="M-70,-86 l8,-16 l8,12 l8,-16 l8,13 l8,-17 l8,14 l8,-17 l8,14 l8,-16 l8,13 l8,-15 l8,12 l8,-12 l6,14Z" fill="#3a2e27"/>
+    <path d="M40,-102 Q54,-64 44,-26" stroke="#e9dfc9" stroke-width="11" fill="none"/>
+    <path d="M58,-92 L130,-62 L130,-40 L58,-30Z" fill="#4b3d33"/>
+    <ellipse cx="130" cy="-51" rx="7" ry="11" fill="#7a5c4e"/>
+    <path d="M116,-38 q6,8 12,4" stroke="#f4ead3" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <circle cx="88" cy="-68" r="4.5" fill="#f4ead3"/><circle cx="89" cy="-68" r="2.5" fill="${INK}"/>
+    <path d="M66,-90 L74,-114 L84,-88Z" fill="#3a2e27"/>
+    ${w}
+  </g></g></g>`;
+}
+function aguara(id) {
+  return `<g id="${id}"><ellipse cx="0" cy="0" rx="85" ry="9" fill="rgba(0,0,0,.22)"/><g class="f"><g class="b">
+    <g fill="#1f1714"><rect x="-58" y="-118" width="12" height="118" rx="5"/><rect x="44" y="-118" width="12" height="118" rx="5"/></g>
+    <g fill="#2b201b"><rect x="-40" y="-118" width="12" height="118" rx="5"/><rect x="62" y="-118" width="12" height="118" rx="5"/></g>
+    <path d="M-74,-130 Q-118,-110 -120,-62 Q-104,-58 -96,-86 Q-90,-110 -70,-118Z" fill="#c8552a"/>
+    <path d="M-120,-62 Q-104,-58 -104,-76 Q-116,-80 -120,-62Z" fill="#f4ead3"/>
+    <ellipse cx="0" cy="-130" rx="80" ry="30" fill="#c8552a"/>
+    <path d="M60,-140 L96,-182 L112,-168 L80,-120Z" fill="#c8552a"/>
+    <path d="M-40,-158 Q20,-166 70,-150 L96,-182 L84,-140 Q20,-150 -40,-150Z" fill="#1f1714"/>
+    <ellipse cx="108" cy="-178" rx="26" ry="16" fill="#c8552a"/>
+    <path d="M124,-186 L150,-176 L126,-168Z" fill="#c8552a"/><circle cx="150" cy="-176" r="5" fill="#1f1714"/>
+    <path d="M92,-190 L94,-236 L110,-192Z M106,-190 L116,-232 L122,-186Z" fill="#c8552a" stroke="#1f1714" stroke-width="3"/>
+    <circle cx="114" cy="-182" r="4" fill="#1f1714"/>
+  </g></g></g>`;
+}
+function tree(x, y, s, c1, c2) {
+  return `<g transform="translate(${x},${y}) scale(${s})"><path d="M-6,-90 Q-30,-118 -52,-128 M-6,-92 Q12,-128 42,-140" stroke="#5a3e2b" stroke-width="12" fill="none" stroke-linecap="round"/><path d="M-11,0 L-8,-96 L8,-96 L11,0Z" fill="#5a3e2b"/>
+  <g fill="${c1}"><ellipse cx="-58" cy="-140" rx="58" ry="32"/><ellipse cx="44" cy="-150" rx="62" ry="35"/><ellipse cx="-6" cy="-178" rx="68" ry="40"/></g>
+  <g fill="${c2}"><ellipse cx="-30" cy="-192" rx="32" ry="13"/><ellipse cx="42" cy="-170" rx="28" ry="11"/></g></g>`;
+}
+function cactus(x, y, s) {
+  return `<g transform="translate(${x},${y}) scale(${s})" fill="#56733f"><rect x="-14" y="-160" width="28" height="160" rx="14"/><path d="M-14,-70 L-44,-70 Q-52,-70 -52,-78 L-52,-120" stroke="#56733f" stroke-width="22" fill="none" stroke-linecap="round"/><path d="M14,-95 L40,-95 Q48,-95 48,-103 L48,-140" stroke="#56733f" stroke-width="20" fill="none" stroke-linecap="round"/></g>`;
+}
+function seated(id, x, y, s, cloak, beard) {
+  return `<g id="${id}" transform="translate(${x},${y}) scale(${s})"><path d="M-64,0 Q-58,-92 0,-112 Q58,-92 64,0Z" fill="${cloak}"/>
+    <path d="M-64,0 Q-58,-92 0,-112" stroke="#f7a03c" stroke-opacity=".55" stroke-width="5" fill="none"/>
+    <circle cx="0" cy="-134" r="27" fill="#c98e5c"/>
+    ${beard ? `<path d="M-22,-132 Q-18,-86 0,-80 Q18,-86 22,-132 Q0,-118 -22,-132Z" fill="#ede6d6"/>` : ''}
+    <ellipse id="${id}M" cx="0" cy="-120" rx="6" ry="1.5" fill="#5a2e24"/>
+    <circle cx="-9" cy="-140" r="3" fill="${INK}"/><circle cx="9" cy="-140" r="3" fill="${INK}"/>
+    <ellipse cx="0" cy="-156" rx="48" ry="9" fill="${INK}"/><path d="M-25,-156 L-21,-182 Q0,-188 21,-182 L25,-156Z" fill="${INK}"/></g>`;
+}
+function bubble(id, x, y, w, h, lines, tail) {
+  const tx = tail[0], ty = tail[1];
+  const txt = lines.map((l, i) => `<tspan x="${x + w / 2}" dy="${i ? 40 : 0}">${l}</tspan>`).join('');
+  return `<g id="${id}" style="transform-origin:${tx}px ${ty}px">
+    <path d="M${x + w * .35},${y + h - 2} L${tx},${ty} L${x + w * .55},${y + h - 2}Z" fill="#f4ead3" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="26" fill="#f4ead3" stroke="${INK}" stroke-width="4"/>
+    <path d="M${x + w * .35 + 3},${y + h - 2} L${x + w * .55 - 3},${y + h - 2}" stroke="#f4ead3" stroke-width="8"/>
+    <text x="${x + w / 2}" y="${y + h / 2 + 12 - (lines.length - 1) * 20}" text-anchor="middle" font-family="Literata, Georgia, serif" font-style="italic" font-size="34" fill="${INK}">${txt}</text></g>`;
+}
+const xMark = (id, x, y, r) => `<g id="${id}" stroke="#b8402f" stroke-width="16" stroke-linecap="round" fill="none"><path pathLength="1" stroke-dasharray="1" d="M${x - r},${y - r} L${x + r},${y + r}"/><path pathLength="1" stroke-dasharray="1" d="M${x + r},${y - r} L${x - r},${y + r}"/></g>`;
+const facon = `<g><path d="M-86,-9 L62,-9 L96,0 L62,10 L-86,10Z" fill="#d9d7cf" stroke="${INK}" stroke-width="3"/><rect x="-94" y="-20" width="8" height="40" rx="2" fill="#b08d3e"/><rect x="-150" y="-13" width="58" height="26" rx="8" fill="${WOOD}"/><g fill="${GOLD}"><rect x="-128" y="-13" width="5" height="26"/><rect x="-112" y="-13" width="5" height="26"/></g></g>`;
+const revolver = `<g><rect x="-10" y="-40" width="126" height="20" rx="4" fill="${STEEL}"/><rect x="-36" y="-50" width="50" height="40" rx="9" fill="#5b5b64"/><path d="M-40,-14 L-8,-14 L-24,70 L-66,70Z" fill="${WOOD}"/><circle cx="-6" cy="-2" r="16" fill="none" stroke="${STEEL}" stroke-width="6"/><rect x="-44" y="-60" width="14" height="14" fill="${STEEL}"/></g>`;
+const winchester = `<g><path d="M-176,6 L-86,-12 L-86,16 L-180,42Z" fill="${WOOD}"/><rect x="-88" y="-16" width="56" height="30" rx="4" fill="#c9a24b"/><rect x="-34" y="-14" width="210" height="11" fill="${STEEL}"/><rect x="-34" y="0" width="176" height="8" fill="#5b5b64"/><path d="M-78,14 q0,26 24,26 q18,0 18,-24" stroke="${STEEL}" stroke-width="6" fill="none"/><rect x="118" y="3" width="36" height="9" rx="2" fill="${WOOD}"/></g>`;
+
+/* ---------- escenas ---------- */
+const $ = id => document.getElementById(id);
+function buildIntro() {
+  seed = 3;
+  let dots = '';
+  const cols = ['#a8362a', '#e8c25a', '#56733f', '#7fb2da', '#c8552a', '#2a1d14'];
+  for (let i = 0; i < 70; i++) {
+    const x = 520 + rnd() * 560, y = 180 + rnd() * 300, c = cols[i % cols.length], k = rnd();
+    const sh = k < .33 ? `<circle r="12" fill="${c}"/>` : k < .66 ? `<rect x="-11" y="-11" width="22" height="22" rx="3" fill="${c}"/>` : `<path d="M0,-14 L13,10 L-13,10Z" fill="${c}"/>`;
+    dots += `<g class="d" data-x="${x.toFixed(0)}" data-y="${y.toFixed(0)}" data-k="${(rnd() * 1.6).toFixed(2)}">${sh}</g>`;
+  }
+  seed = 5;
+  let d = 'M620,330';
+  for (let i = 0; i < 18; i++) d += ` C${(560 + rnd() * 480).toFixed(0)},${(170 + rnd() * 330).toFixed(0)} ${(560 + rnd() * 480).toFixed(0)},${(170 + rnd() * 330).toFixed(0)} ${(600 + rnd() * 400).toFixed(0)},${(210 + rnd() * 250).toFixed(0)}`;
+  const people = [0, 1, 2, 3, 4].map(i => { const x = 560 + i * 120, c = ['#a8362a', '#56733f', '#7fb2da', '#c8552a', '#8a5a9c'][i]; return `<g class="pp" data-x="${x}"><path d="M-40,90 Q-40,0 0,-6 Q40,0 40,90Z" fill="${c}"/><circle cx="0" cy="-40" r="32" fill="${SKIN}"/><path d="M-14,-48 q5,-6 10,0 M4,-48 q5,-6 10,0" stroke="${INK}" stroke-width="3.5" fill="none"/><path d="M-14,-30 Q0,-10 14,-30Z" fill="#5a2e24"/></g>`; }).join('');
+  $('scIntro').innerHTML = `
+    <rect width="1600" height="900" fill="url(#gPaper)"/>
+    <g id="iMil">${dots}</g>
+    <g id="iBulb" transform="translate(800,320)"><g id="iRays" stroke="#e8a02a" stroke-width="10" stroke-linecap="round">${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<path d="M0,-125 L0,-160" transform="rotate(${a})"/>`).join('')}</g><circle r="92" fill="#f2b23a" stroke="${INK}" stroke-width="6"/><path d="M-30,20 Q0,-50 30,20" stroke="${INK}" stroke-width="6" fill="none"/><rect x="-40" y="84" width="80" height="22" rx="6" fill="${STEEL}"/><rect x="-34" y="108" width="68" height="20" rx="6" fill="${STEEL}"/><path d="M-50,-30 q10,-10 20,0" stroke="${INK}" stroke-width="5" fill="none"/></g>
+    <path id="iTangle" d="${d}" pathLength="1" stroke-dasharray="1" stroke="${INK}" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <g id="iLiar"><circle cx="700" cy="340" r="100" fill="${SKIN}"/><ellipse cx="700" cy="248" rx="140" ry="20" fill="${INK}"/><path d="M640,248 L646,176 Q700,162 754,176 L760,248Z" fill="${INK}"/><circle cx="740" cy="318" r="9" fill="${INK}"/><path d="M722,296 L758,300" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><rect id="iNose" x="786" y="332" width="40" height="30" rx="15" fill="#c98a55" stroke="${INK}" stroke-width="4"/><path d="M730,392 q20,10 40,-4" stroke="${INK}" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+    <g id="iKnife"><g transform="translate(800,330) scale(2.1) rotate(-18)">${facon}</g>${xMark('iKnifeX', 800, 330, 150)}</g>
+    <g id="iLaugh"><g id="iFace" transform="translate(800,330)"><circle r="120" fill="${SKIN}" stroke="${INK}" stroke-width="6"/><path d="M-60,-30 q20,-24 40,0 M20,-30 q20,-24 40,0" stroke="${INK}" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M-66,16 Q0,110 66,16Z" fill="#5a2e24" stroke="${INK}" stroke-width="6"/><ellipse cx="0" cy="58" rx="28" ry="14" fill="#d7606a"/></g>
+      ${['JA', 'JA', 'JA'].map((j, i) => `<text class="ja" x="${[520, 1080, 1000][i]}" y="${[240, 220, 470][i]}" font-family="Chango, sans-serif" font-size="72" fill="#a8362a" text-anchor="middle">${j}</text>`).join('')}</g>
+    <g id="iMedal" transform="translate(800,300)"><path d="M-70,-150 L-20,-40 L10,-60 L-30,-150Z" fill="#7fb2da"/><path d="M70,-150 L20,-40 L-10,-60 L30,-150Z" fill="#f4ead3" stroke="#7fb2da" stroke-width="6"/><circle cy="40" r="110" fill="${GOLD}" stroke="${INK}" stroke-width="6"/><circle cy="40" r="84" fill="none" stroke="#b08d3e" stroke-width="6" stroke-dasharray="4 10"/><text y="78" text-anchor="middle" font-family="Chango, sans-serif" font-size="100" fill="${INK}">1°</text></g>
+    <g id="iPeople" transform="translate(0,300)">${people}</g>
+    <g id="iFant"><path d="M560,380 Q540,300 620,290 Q640,210 730,230 Q790,170 870,220 Q960,200 980,280 Q1060,290 1040,370 Q1040,420 980,420 L620,420 Q560,420 560,380Z" fill="#f9f3e3" stroke="${INK}" stroke-width="5"/>
+      <g id="iPig" transform="translate(800,300) scale(.9)">${chancho('fPig', true)}</g>
+      ${[[540, 200], [1080, 210], [1110, 440], [500, 450], [800, 150]].map((p, i) => `<path class="spk" data-i="${i}" transform="translate(${p[0]},${p[1]})" d="M0,-30 Q4,-4 30,0 Q4,4 0,30 Q-4,4 -30,0 Q-4,-4 0,-30Z" fill="${GOLD}"/>`).join('')}</g>
+    <text id="iWord" x="800" y="700" text-anchor="middle" font-family="Chango, sans-serif" font-size="104" fill="${INK}"></text>
+    <text id="iSub" x="800" y="770" text-anchor="middle" font-family="Literata, Georgia, serif" font-style="italic" font-size="36" fill="#6f4a2e"></text>`;
+}
+function buildRueda() {
+  seed = 9;
+  let stars = '';
+  for (let i = 0; i < 60; i++) stars += `<circle class="st" cx="${(rnd() * 1600).toFixed(0)}" cy="${(rnd() * 420).toFixed(0)}" r="${(1 + rnd() * 2.2).toFixed(1)}" fill="#f4ead3"/>`;
+  $('scRueda').innerHTML = `
+    <rect width="1600" height="900" fill="url(#gNight)"/>${stars}
+    <circle cx="1340" cy="140" r="56" fill="#f4ead3"/><circle cx="1362" cy="128" r="50" fill="#1b2130"/>
+    <path d="M0,560 Q300,520 600,560 T1200,550 T1600,560 L1600,900 L0,900Z" fill="#1d1a1c"/>
+    ${tree(180, 600, 1.2, '#161a1a', '#1d2322')}${tree(1480, 590, 1.1, '#161a1a', '#1d2322')}
+    <rect y="620" width="1600" height="280" fill="#2a231c"/>
+    <circle cx="800" cy="740" r="420" fill="url(#gGlow)"/>
+    <ellipse id="rRing" cx="820" cy="780" rx="500" ry="120" pathLength="1" stroke-dasharray="1" fill="none" stroke="${GOLD}" stroke-width="5" stroke-opacity=".7"/>
+    ${seated('rS3', 680, 700, .78, '#3b3a4a', false)}
+    ${seated('rS2', 1020, 820, 1, '#46503a', false)}
+    ${seated('rViejo', 540, 810, 1.05, '#5a3a2e', true)}
+    <g transform="translate(800,790)"><rect x="-70" y="-8" width="140" height="18" rx="9" fill="#5a3e2b" transform="rotate(12)"/><rect x="-70" y="-8" width="140" height="18" rx="9" fill="#4a3324" transform="rotate(-12)"/>
+      <g id="rFire"><path d="M-46,0 Q-60,-70 -12,-128 Q-8,-66 22,-92 Q48,-44 46,0Z" fill="#e8672a"/><path d="M-28,0 Q-34,-50 -2,-92 Q4,-44 22,-58 Q34,-28 28,0Z" fill="#f2b23a"/><path d="M-12,0 Q-14,-30 4,-54 Q12,-24 14,0Z" fill="#fbe7a1"/></g></g>
+    <g id="rSeraW">${gaucho('rSera')}</g>
+    ${bubble('rB1', 880, 250, 560, 110, ['“Y si usted sabe…”'], [1150, 420])}
+    ${bubble('rB2', 180, 380, 640, 150, ['“¿Y cómo hizo,', 'don Serafín?”'], [520, 610])}`;
+}
+function buildTools() {
+  $('scTools').innerHTML = `
+    <rect width="1600" height="900" fill="url(#gSky)"/>
+    <circle cx="1400" cy="170" r="80" fill="#fbe7a1"/>
+    <path d="M0,560 Q400,520 800,555 T1600,540 L1600,900 L0,900Z" fill="#9e8a4f"/>
+    <rect y="640" width="1600" height="260" fill="#c99a5e"/>
+    <g transform="translate(40,700)"><rect x="0" y="-230" width="300" height="230" fill="#d8b383"/><rect x="200" y="-140" width="60" height="140" fill="#3a2a1e"/><rect x="50" y="-150" width="60" height="50" fill="#3a2a1e"/><path d="M-30,-220 L150,-330 L330,-220Z" fill="#c9a24b"/><path d="M-30,-220 L150,-330 L330,-220" stroke="#9e7a2e" stroke-width="8" fill="none"/></g>
+    <g id="hSeraW">${gaucho('hSera')}</g>
+    <text id="tHead" x="1080" y="250" text-anchor="middle" font-family="Chango, sans-serif" font-size="78" fill="${INK}">Sin herramientas</text>
+    ${[['tK', 740, facon, .95], ['tR', 1060, revolver, 1], ['tW', 1390, winchester, .95]].map(([id, x, ic, s], i) => `<g id="${id}" style="transform-origin:${x}px 470px"><circle cx="${x}" cy="470" r="128" fill="#f4ead3" stroke="${INK}" stroke-width="5"/><g transform="translate(${x},${i === 1 ? 460 : 472}) scale(${s})">${ic}</g>${xMark(id + 'X', x, 470, 92)}<text x="${x}" y="650" text-anchor="middle" font-family="Chango, sans-serif" font-size="40" fill="${INK}">${['cuchillo', 'revólver', 'Winchester'][i]}</text></g>`).join('')}`;
+}
+const MANADA = [300, 450, 1150, 1300, 1450];
+function buildMonte() {
+  const back = [tree(90, 540, .8, '#6f8a4c', '#88a35e'), tree(400, 530, .6, '#6f8a4c', '#88a35e'), tree(1250, 535, .7, '#6f8a4c', '#88a35e'), tree(1540, 545, .9, '#6f8a4c', '#88a35e'), cactus(620, 530, .5), cactus(1010, 528, .45)].join('');
+  const front = [tree(-20, 900, 1.9, '#33492b', '#4e6b3e'), tree(1640, 900, 2, '#33492b', '#4e6b3e'), cactus(170, 760, 1)].join('');
+  $('scMonte').innerHTML = `
+    <rect width="1600" height="900" fill="url(#gSky)"/>
+    <circle cx="1180" cy="170" r="70" fill="#fbe7a1"/>
+    <path d="M0,500 Q260,440 520,490 T1060,480 T1600,470 L1600,560 L0,560Z" fill="#9aa068"/>
+    ${back}
+    <rect y="530" width="1600" height="370" fill="#b98b52"/>
+    <path d="M630,900 L970,900 L822,530 L786,530Z" fill="#d8b383"/>
+    <path id="mTrail" d="M800,900 L804,530" pathLength="1" stroke-dasharray=".04 .03" stroke="#fbe7a1" stroke-width="8" fill="none"/>
+    ${xMark('mNoWay', 804, 580, 34)}
+    <g id="mBack">${aguara('a2')}${chancho('p2')}${aguara('a1')}${chancho('p1')}</g>
+    <ellipse id="mRing" cx="800" cy="700" rx="430" ry="120" pathLength="1" stroke-dasharray="1" fill="none" stroke="#a8362a" stroke-width="6" stroke-opacity=".75"/>
+    <g id="mCats">${cat('tg3', '#d98a2b', '#f3d9a4', true)}${cat('tg2', '#d98a2b', '#f3d9a4', true)}${cat('tg1', '#d98a2b', '#f3d9a4', true)}${cat('pmS', '#c49a66', '#efdcb8', false, true)}${cat('pm1', '#c49a66', '#efdcb8', false)}</g>
+    <g id="mSeraW">${gaucho('mSera')}</g>
+    <text id="mBang" x="0" y="0" text-anchor="middle" font-family="Chango, sans-serif" font-size="90" fill="#a8362a">!</text>
+    <g id="mQ" font-family="Chango, sans-serif" font-size="70" fill="${INK}" text-anchor="middle"><text x="-70">?</text><text x="0" y="-30">?</text><text x="70">?</text></g>
+    <g id="mFront">${chancho('c1')}${chancho('c2')}${MANADA.map((x, i) => chancho('m' + i)).join('')}</g>
+    <g id="mDim"><path d="M640,560 L735,560 M640,540 L640,580 M735,540 L735,580" stroke="${INK}" stroke-width="5"/><rect x="646" y="490" width="84" height="54" rx="8" fill="#f4ead3" stroke="${INK}" stroke-width="3"/><text x="688" y="530" text-anchor="middle" font-family="Chango, sans-serif" font-size="34" fill="${INK}">2 m</text></g>
+    ${[['lT', 240, 410, 'Tigres adelante', -4], ['lP', 1300, 410, 'Pumas atrás', 3], ['lC', 800, 870, 'Chanchos al costado', -2], ['lA', 1060, 360, 'Aguará guazú', 3]].map(([id, x, y, s, r]) => `<g id="${id}" style="transform-origin:${x}px ${y}px"><rect x="${x - s.length * 12.5}" y="${y - 44}" width="${s.length * 25}" height="62" rx="6" fill="#f4ead3" stroke="${INK}" stroke-width="3" transform="rotate(${r},${x},${y})"/><text x="${x}" y="${y}" text-anchor="middle" font-family="Chango, sans-serif" font-size="36" fill="${INK}" transform="rotate(${r},${x},${y})">${s}</text></g>`).join('')}
+    ${front}
+    <rect id="mVig" width="1600" height="900" fill="url(#gVig)"/>`;
+}
+function buildFin() {
+  $('scFin').innerHTML = `<rect width="1600" height="900" fill="#1c1713"/>
+    <text x="800" y="420" text-anchor="middle" font-family="Chango, sans-serif" font-size="120" fill="#f2b23a">Permiso, permiso</text>
+    <text x="800" y="520" text-anchor="middle" font-family="Literata, Georgia, serif" font-style="italic" font-size="44" fill="#efe3c8">…y me fui.</text>
+    <text x="800" y="680" text-anchor="middle" font-family="Chango, sans-serif" font-size="46" letter-spacing="10" fill="#a8977d">FIN</text>`;
+}
+buildIntro(); buildRueda(); buildTools(); buildMonte(); buildFin();
+
+/* ---------- helpers de dibujo ---------- */
+const cache = {};
+const el = id => cache[id] || (cache[id] = $(id));
+const place = (id, x, y, s = 1, flip = 1) => { const e = el(id); e.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${(s).toFixed(3)})`); const f = e.querySelector('.f'); if (f) f.setAttribute('transform', `scale(${flip},1)`); };
+const op = (id, v) => { const e = el(id); e.style.opacity = v.toFixed(3); e.style.visibility = v <= 0.001 ? 'hidden' : 'visible'; };
+const talking = t => WORDS.some(w => t >= w[0] && t < w[1] && w[2][0] !== '[');
+const mouthOpen = t => { const w = WORDS.find(w => t >= w[0] && t < w[1] && w[2][0] !== '['); return w ? 3 + 7 * Math.sin(Math.PI * ramp(t, w[0], w[1])) : 1.5; };
+
+function poseGaucho(p, o) {
+  // o: {x,y,s,bob,armL,armR,look:[dx,dy],head,hat,mouth,legs}
+  place(p + 'W', o.x, o.y, o.s || 1);
+  el(p + 'B').setAttribute('transform', `translate(0,${-(o.bob || 0)})`);
+  el(p + 'AL').setAttribute('transform', `rotate(${o.armL || 0},-40,-205)`);
+  el(p + 'AR').setAttribute('transform', `rotate(${-(o.armR || 0)},40,-205)`);
+  const lk = o.look || [0, 0];
+  el(p + 'E').setAttribute('transform', `translate(${lk[0]},${lk[1]})`);
+  el(p + 'H').setAttribute('transform', `rotate(${o.head || 0},0,-230)`);
+  el(p + 'Hat').setAttribute('transform', `translate(0,${-(o.hat || 0)}) rotate(${(o.hat || 0) * -.4},0,-300)`);
+  el(p + 'M').setAttribute('ry', (o.mouth || 1.5).toFixed(1));
+  const lg = o.legs || 0;
+  el(p + 'LL').setAttribute('transform', `translate(0,${Math.min(0, -lg)})`);
+  el(p + 'LR').setAttribute('transform', `translate(0,${Math.min(0, lg)})`);
+}
+function anim(id, x, y, s, flip, t, moving) {
+  const e = el(id);
+  place(id, x, y, s, flip);
+  const b = e.querySelector('.b');
+  const bob = moving ? Math.abs(Math.sin(t * 14)) * 10 : (reduced ? 0 : Math.sin(t * 3 + x) * 1.5);
+  b.setAttribute('transform', `translate(0,${-bob.toFixed(1)})`);
+}
+
+/* ---------- escena: intro ---------- */
+const BEATS = [
+  [0.2, 'iMil', 'Mil cosas', 'que la vida nos alcanza'],
+  [7.3, 'iBulb', 'La viveza', 'que tienen algunos'],
+  [9.9, 'iTangle', 'Embrollos', 'que ellos mismos se meten'],
+  [12.6, 'iLiar', 'Mentir', ''],
+  [14.4, 'iKnife', '¿Pa hacer daño?', 'no'],
+  [16.2, 'iLaugh', '¡Pa hacer reír!', 'a los otros'],
+  [20.0, 'iMedal', 'La mejor mentira', 'la que no es dañina'],
+  [23.9, 'iPeople', 'Función social', 'hacer reír a un semejante'],
+  [28.8, 'iFant', 'Fantasía', 'una mentira a través de la fantasía'],
+  [31.3, null]
+];
+let lastBeat = -1;
+function intro(t) {
+  let bi = 0;
+  for (let i = 0; i < BEATS.length - 1; i++) if (t >= BEATS[i][0]) bi = i;
+  BEATS.slice(0, -1).forEach((b, i) => {
+    const a = b[0], z = BEATS[i + 1][0];
+    const v = i === bi ? Math.min(i === 0 ? 1 : ramp(t, a, a + .3), 1 - ramp(t, z - .15, z + .1)) : 0;
+    op(b[1], v);
+  });
+  if (bi !== lastBeat) { el('iWord').textContent = BEATS[bi][2]; el('iSub').textContent = BEATS[bi][3]; lastBeat = bi; }
+  const ws = pop(t, BEATS[bi][0], .5);
+  el('iWord').setAttribute('transform', `translate(800,700) scale(${Math.max(.01, ws)}) translate(-800,-700)`);
+  el('iSub').style.opacity = ramp(t, BEATS[bi][0] + .3, BEATS[bi][0] + .8);
+  // mil cosas
+  el('iMil').querySelectorAll('.d').forEach(d => { const k = pop(t, .4 + +d.dataset.k, .4); d.setAttribute('transform', `translate(${d.dataset.x},${d.dataset.y}) scale(${k}) rotate(${t * 20 * (+d.dataset.k - .8)})`); });
+  // viveza
+  el('iRays').setAttribute('transform', `rotate(${t * 15}) scale(${1 + .06 * Math.sin(t * 8)})`);
+  el('iBulb').setAttribute('transform', `translate(800,320) scale(${pop(t, 7.56)})`);
+  // embrollos
+  el('iTangle').setAttribute('stroke-dashoffset', 1 - E(t, 10.1, 12.3));
+  // mentir: la nariz crece
+  el('iNose').setAttribute('width', 40 + 280 * E(t, 12.9, 14.1));
+  // daño
+  el('iKnifeX').querySelectorAll('path').forEach((p, i) => p.setAttribute('stroke-dashoffset', 1 - E(t, 15.45 + i * .2, 15.75 + i * .2)));
+  // reír
+  el('iFace').setAttribute('transform', `translate(800,${330 - Math.abs(Math.sin(t * 9)) * 16 * ramp(t, 17, 17.2)}) rotate(${Math.sin(t * 9) * 4})`);
+  el('iLaugh').querySelectorAll('.ja').forEach((j, i) => { const k = pop(t, 17.04 + i * .25); const x = j.getAttribute('x'), y = j.getAttribute('y'); j.setAttribute('transform', `translate(${x},${y}) scale(${k}) rotate(${(i - 1) * 12}) translate(${-x},${-y})`); });
+  // medalla
+  el('iMedal').setAttribute('transform', `translate(800,300) scale(${pop(t, 20.12, .6)}) rotate(${Math.sin(t * 3) * 3})`);
+  // gente
+  el('iPeople').querySelectorAll('.pp').forEach((p, i) => { const k = pop(t, 24.5 + i * .12); const j = t > 25.9 ? Math.abs(Math.sin(t * 10 + i)) * 14 : 0; p.setAttribute('transform', `translate(${p.dataset.x},${-j}) scale(${k})`); });
+  // fantasía
+  el('iPig').setAttribute('transform', `translate(760,${260 + Math.sin(t * 3) * 14}) scale(.9)`);
+  el('fPig').querySelector('.w').setAttribute('transform', `rotate(${Math.sin(t * 16) * 18},-20,-96)`);
+  el('iFant').querySelectorAll('.spk').forEach((s, i) => { const k = pop(t, 29.9 + i * .15) * (0.75 + .25 * Math.sin(t * 5 + i)); const m = s.getAttribute('transform').match(/translate\(([^)]+)\)/)[0]; s.setAttribute('transform', `${m} scale(${k})`); });
+}
+
+/* ---------- escena: la rueda ---------- */
+function rueda(t) {
+  const fl = reduced ? 1 : 1 + .08 * Math.sin(t * 13) + .05 * Math.sin(t * 29);
+  el('rFire').setAttribute('transform', `scale(${(2 - fl).toFixed(3)},${fl.toFixed(3)})`);
+  el('rRing').setAttribute('stroke-dashoffset', 1 - E(t, 34.5, 35.8));
+  el('rRing').style.opacity = t < 100 ? 1 : 0;
+  const first = t < 100;
+  const stand = first ? E(t, 33.0, 33.8) : 1;
+  const speaking = first ? t > 37 : t > 130.4;
+  const sm = speaking ? mouthOpen(t) : 1.5;
+  const wave = speaking ? 40 + 25 * Math.sin(t * 6) : 0;
+  poseGaucho('rSera', { x: 1200, y: 800 + (1 - stand) * 60, s: .92, armR: wave, armL: speaking ? 10 : 0, mouth: sm, look: first ? [-4, 0] : [-5, 0] });
+  el('rViejoM').setAttribute('ry', (!first && t > 128.6 && t < 130.3) ? mouthOpen(t).toFixed(1) : 1.5);
+  const b1 = first ? Math.min(pop(t, 37.18, .35), 1 - ramp(t, 38.2, 38.5)) : 0;
+  el('rB1').style.transform = `scale(${b1})`;
+  const b2 = !first ? Math.min(pop(t, 128.7, .35), 1 - ramp(t, 130.5, 130.8)) : 0;
+  el('rB2').style.transform = `scale(${b2})`;
+}
+
+/* ---------- escena: sin herramientas ---------- */
+function tools(t) {
+  const k = E(t, 38.5, 40.4);
+  poseGaucho('hSera', { x: lerp(290, 450, k), y: 770, s: 1.05, legs: (k > 0 && k < 1) ? Math.sin(t * 12) * 7 : 0, bob: (k > 0 && k < 1) ? Math.abs(Math.sin(t * 12)) * 5 : 0, armL: t > 40.9 && t < 41.9 ? 70 : 0, armR: t > 40.9 && t < 41.9 ? 70 : 0, mouth: mouthOpen(t), look: [4, 0] });
+  el('tHead').style.opacity = ramp(t, 40.1, 40.5);
+  [['tK', 42.2], ['tR', 43.12], ['tW', 44.08]].forEach(([id, a]) => {
+    el(id).style.transform = `scale(${pop(t, a - .2, .4)})`;
+    el(id + 'X').querySelectorAll('path').forEach((p, i) => p.setAttribute('stroke-dashoffset', 1 - E(t, a + .25 + i * .15, a + .5 + i * .15)));
+  });
+}
+
+/* ---------- escena: el monte ---------- */
+const JUMPS = [54.58, 61.66, 67.38, 77.04, 92.88, 97.14, 102.0];
+const LOOKS = [[0, 3, 0], [54.4, -5, 0], [55.8, 5, 0], [57.2, 0, 1], [61.5, 5, 0], [63.3, 0, 3], [67.2, 0, 4], [70.5, 0, 0], [73.8, 3, -4], [78.5, 0, 0], [86.4, 'q'], [88.2, 0, 0], [91.1, 5, 0], [95.6, -5, 0], [100.5, 0, 4], [103.6, -4, -4], [106.5, 0, 0], [128, 0, 0]];
+function seraPos(t) {
+  let x = lerp(520, 800, E(t, 45, 50.8)) + 100 * E(t, 55.7, 56.5) + 100 * E(t, 59.2, 60.2) - 200 * E(t, 62.0, 63.0);
+  let y = 690 + 50 * E(t, 63.9, 65.6) - 50 * E(t, 67.5, 68.3) - 60 * E(t, 74.0, 75.6) + 60 * E(t, 77.2, 78.1);
+  let s = 1 - .1 * E(t, 74.0, 75.6) + .1 * E(t, 77.2, 78.1);
+  const away = E(t, 131.95, 135.2);
+  y -= 200 * away; s *= 1 - .7 * away; x += 6 * away;
+  return [x, y, s];
+}
+function monte(t) {
+  const [x, y, s] = seraPos(t), [px, py] = seraPos(t - .06);
+  const moving = Math.hypot(x - px, y - py) > .4;
+  let jump = 0; JUMPS.forEach(j => jump = Math.max(jump, bump(t, j, .45)));
+  let look = [0, 0];
+  for (const l of LOOKS) if (t >= l[0]) look = l[1] === 'q' ? [5 * Math.sin(t * 5), -2] : [l[1], l[2]];
+  const rode = t > 106.9 && t < 131.2;
+  const shake = rode && !reduced ? Math.sin(t * 45) * 2.5 : 0;
+  const shrug = Math.max(E(t, 57.3, 57.6) * (1 - E(t, 58.3, 58.7)), 0);
+  const armsUp = Math.max(shrug * 80, jump * 70, rode ? 35 : 0);
+  const hat = Math.max(bump(t, 131.04, .5), bump(t, 131.58, .45)) * 26;
+  const noNo = t > 121.3 && t < 122.8 ? Math.sin(t * 20) * 12 : 0;
+  poseGaucho('mSera', { x: x + shake, y, s, bob: jump * 45 + (moving ? Math.abs(Math.sin(t * 12)) * 5 : 0), legs: moving ? Math.sin(t * 12) * 8 : 0, armL: armsUp, armR: armsUp, look, head: noNo, hat, mouth: t < 126.4 || t > 131 ? mouthOpen(t) : 1.5 });
+  el('mSeraW').style.opacity = 1 - ramp(t, 134.6, 135.3);
+  // signos
+  let bang = 0; JUMPS.forEach(j => bang = Math.max(bang, Math.min(pop(t, j, .3), 1 - ramp(t, j + .9, j + 1.2))));
+  el('mBang').setAttribute('transform', `translate(${x + 70},${y - 350 * s}) scale(${bang})`);
+  const q = Math.min(pop(t, 86.58, .4), 1 - ramp(t, 88.4, 88.8));
+  el('mQ').setAttribute('transform', `translate(${x},${y - 360 * s}) scale(${q})`);
+  // viñeta "yo solo"
+  el('mVig').style.opacity = (E(t, 46.2, 46.8) * (1 - E(t, 47.8, 48.6))) * .9;
+  el('mTrail').setAttribute('stroke-dashoffset', 0);
+  el('mTrail').style.opacity = E(t, 48.4, 48.9) * (1 - E(t, 50.4, 51));
+  el('mTrail').setAttribute('stroke-dasharray', `${.04} ${.03}`);
+  el('mTrail').setAttribute('stroke-dashoffset', (-t * .05) % .07);
+  // camino bloqueado
+  el('mNoWay').querySelectorAll('path').forEach((p, i) => p.setAttribute('stroke-dashoffset', 1 - E(t, 123.0 + i * .12, 123.3 + i * .12)));
+  el('mNoWay').style.opacity = 1 - ramp(t, 125.8, 126.2);
+  // rodeado
+  const R = E(t, 106.8, 108.4), P = E(t, 131.25, 132.6);
+  el('mRing').setAttribute('stroke-dashoffset', 1 - E(t, 116.2, 117.2));
+  el('mRing').style.opacity = 1 - ramp(t, 125.8, 126.3);
+  const mv = (a, b) => (t > a && t < b);
+  // tigres (izquierda)
+  anim('tg1', lerp(-260, 360, E(t, 54.2, 55.2)) + 110 * R - 900 * P, 690, 1, 1, t, mv(54.2, 55.2) || mv(106.8, 108.4) || mv(131.2, 132.6));
+  anim('tg2', lerp(-260, 210, E(t, 96.8, 97.8)) + 130 * R - 900 * P, 650, .85, 1, t, mv(96.8, 97.8) || mv(106.8, 108.4) || mv(131.2, 132.6));
+  anim('tg3', lerp(-320, 90, E(t, 97.0, 98.0)) + 170 * R - 900 * P, 615, .74, 1, t, mv(97, 98) || mv(106.8, 108.4) || mv(131.2, 132.6));
+  // pumas (derecha)
+  anim('pm1', lerp(1860, 1240, E(t, 61.3, 62.3)) - 110 * R + 900 * P, 690, 1, -1, t, mv(61.3, 62.3) || mv(106.8, 108.4) || mv(131.2, 132.6));
+  anim('pmS', lerp(1900, 1410, E(t, 92.4, 93.4)) - 150 * R + 900 * P, 655, .88, -1, t, mv(92.4, 93.4) || mv(106.8, 108.4) || mv(131.2, 132.6));
+  // chanchos al frente
+  anim('c1', 640 + 20 * R, lerp(1100, 860, E(t, 66.9, 67.9)) - 30 * R + 320 * P, 1.1, 1, t, mv(66.9, 67.9) || mv(131.2, 132.6));
+  anim('c2', 980 - 20 * R, lerp(1100, 870, E(t, 67.0, 68.0)) - 30 * R + 320 * P, 1.1, -1, t, mv(67, 68) || mv(131.2, 132.6));
+  MANADA.forEach((mx, i) => { const a = 101.6 + i * .12; anim('m' + i, mx + (mx < 800 ? 40 : -40) * R, lerp(1120, 885, E(t, a, a + .9)) - 20 * R + 320 * P, 1, mx < 800 ? 1 : -1, t, mv(a, a + .9) || mv(131.2, 132.6)); });
+  // fondo
+  anim('a1', lerp(1720, 1070, E(t, 76.5, 77.5)) - 100 * R + 800 * P, 548 + 25 * R, .7 + .05 * R, -1, t, mv(76.5, 77.5) || mv(131.2, 132.6));
+  anim('p1', lerp(1760, 1190, E(t, 80.0, 81.0)) - 100 * R + 800 * P, 550 + 25 * R, .55 + .05 * R, -1, t, mv(80, 81) || mv(131.2, 132.6));
+  anim('a2', lerp(-220, 540, E(t, 103.9, 105.0)) + 90 * R - 800 * P, 548 + 25 * R, .7 + .05 * R, 1, t, mv(103.9, 105) || mv(131.2, 132.6));
+  anim('p2', lerp(-260, 420, E(t, 104.1, 105.2)) + 90 * R - 800 * P, 550 + 25 * R, .55 + .05 * R, 1, t, mv(104.1, 105.2) || mv(131.2, 132.6));
+  // carteles
+  [['lT', 108.9], ['lP', 110.0], ['lC', 111.04], ['lA', 111.96]].forEach(([id, a]) => el(id).style.transform = `scale(${Math.min(pop(t, a, .35), 1 - ramp(t, 115.4, 115.8))})`);
+  el('mDim').style.opacity = ramp(t, 117.3, 117.6) * (1 - ramp(t, 119.8, 120.2));
+}
+
+/* ---------- escenas y tiempos ---------- */
+const SCENES = [
+  ['scIntro', [[-1, 31.3]]],
+  ['scRueda', [[31.3, 38.35], [126.45, 130.95]]],
+  ['scTools', [[38.35, 45.1]]],
+  ['scMonte', [[45.1, 126.45], [130.95, 135.4]]],
+  ['scFin', [[135.4, 999]]]
+];
+function render(t) {
+  SCENES.forEach(([id, ranges]) => op(id, Math.max(...ranges.map(r => win(t, r[0], r[1], .18)))));
+  if (t < 31.8) intro(t);
+  if ((t > 30.8 && t < 38.8) || (t > 126 && t < 131.4)) rueda(t);
+  if (t > 37.8 && t < 45.6) tools(t);
+  if ((t > 44.6 && t < 127) || (t > 130.4 && t < 136)) monte(t);
+}
+
+/* ---------- subtítulos ---------- */
+const chunks = [];
+{
+  let cur = [], prevEnd = 0;
+  const flush = () => { if (cur.length) chunks.push(cur); cur = []; };
+  WORDS.forEach(w => {
+    if (w[2][0] === '[') { flush(); return; }
+    if (cur.length && w[0] - prevEnd > .9) flush();
+    cur.push(w); prevEnd = w[1];
+    if ((/[.,?!:;'"”]$/.test(w[2]) && cur.length >= 4) || cur.length >= 9) flush();
+  });
+  flush();
+}
+const LAUGHS = WORDS.filter(w => w[2].startsWith('[risas')).map(w => w[0]);
+const capEl = $('captions');
+let shownChunk = -2, spans = [], laughOn = null;
+function captions(t) {
+  let ci = -1;
+  for (let i = 0; i < chunks.length; i++) if (chunks[i][0][0] - .15 <= t) ci = i;
+  if (ci >= 0) { const c = chunks[ci]; if (t > c[c.length - 1][1] + 1.4 && !(chunks[ci + 1] && chunks[ci + 1][0][0] - .15 <= t)) ci = -1; }
+  const laugh = LAUGHS.some(a => t >= a && t < a + 1.6);
+  if (ci !== shownChunk || laugh !== laughOn) {
+    capEl.innerHTML = '';
+    spans = [];
+    if (ci >= 0) chunks[ci].forEach((w, i) => { const s = document.createElement('span'); s.textContent = (i ? ' ' : '') + w[2].replace(/^["']|["']$/g, ''); capEl.appendChild(s); spans.push([s, w]); });
+    if (laugh) { const l = document.createElement('span'); l.className = 'laugh'; l.textContent = 'risas'; capEl.appendChild(l); }
+    shownChunk = ci; laughOn = laugh;
+  }
+  spans.forEach(([s, w]) => { s.className = t >= w[1] ? 'said' : t >= w[0] ? 'now' : ''; });
+}
+
+/* ---------- reproductor ---------- */
+const audio = $('audio'), playBtn = $('play'), seek = $('seek'), timeEl = $('time'), poster = $('poster');
+const ICON_PLAY = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></svg>';
+const ICON_PAUSE = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4.5v16H6zM13.5 4H18v16h-4.5z" fill="currentColor"/></svg>';
+let started = false, dragging = false;
+const DUR = 141.5;
+const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+function setBtn() { const p = audio.paused; playBtn.innerHTML = p ? ICON_PLAY : ICON_PAUSE; playBtn.setAttribute('aria-label', p ? 'Reproducir' : 'Pausar'); }
+function toggle() {
+  if (audio.paused) {
+    started = true; poster.hidden = true;
+    audio.play().catch(() => { $('note').textContent = 'No se pudo reproducir el audio en este navegador.'; $('note').classList.add('err'); });
+  } else audio.pause();
+}
+playBtn.addEventListener('click', toggle);
+poster.addEventListener('click', toggle);
+audio.addEventListener('play', setBtn);
+audio.addEventListener('pause', setBtn);
+audio.addEventListener('ended', setBtn);
+seek.addEventListener('input', () => { dragging = true; started = true; poster.hidden = true; audio.currentTime = +seek.value; });
+seek.addEventListener('change', () => { dragging = false; });
+document.addEventListener('keydown', e => { if (e.code === 'Space' && e.target === document.body) { e.preventDefault(); toggle(); } });
+setBtn();
+
+function frame() {
+  const t = started ? audio.currentTime : 118.2;
+  render(t);
+  captions(started ? t : -5);
+  if (!dragging) seek.value = started ? t : 0;
+  timeEl.textContent = `${fmt(started ? t : 0)} / ${fmt(audio.duration || DUR)}`;
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
